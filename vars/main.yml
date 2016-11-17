@@ -1,0 +1,43 @@
+---
+# vars file for dellos-lag
+
+dellos_lag:
+ spine1:
+    Po 127:
+      type: static
+      min_links: 3
+      hash: crc16 
+      channel_members:
+        - fortyGigE 1/4,1/12
+      state: present
+      members_state: present
+
+    Po 128:
+      type: static
+      min_links: 3
+      hash: crc16
+      channel_members:
+        - fortyGigE 1/5,1/6
+      state: present
+      members_state: present
+
+ leaf1:
+   Po 10:
+     type: static
+     min_links:
+     hash:
+     channel_members:
+       - ethernet1/1/6
+       - ethernet1/1/7
+     state: present
+     members_state: present
+ leaf2:
+   Po 11:
+     type: static
+     min_links: 3
+     hash: 4
+     channel_members:
+       - Te1/0/1
+       - Te1/0/2
+     members_state: present
+     state: present
