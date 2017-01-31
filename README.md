@@ -30,9 +30,9 @@ Any role variable with a corresponding state variable setting to absent negates 
 For variables with no state variable, setting an empty value to the variable negates the corresponding configuration.
 The variables and its values are case-sensitive.
 
-The hostname (dictionary) holds a dictionary with the port channel ID. Port channel ID can be in the range 1-4096 for OS9 devices.
+The ``hostname`` (dictionary) holds a dictionary with the port channel ID. Port channel ID can be in the range 1-4096 for OS9 devices.
 
-port-channel ID holds the following keys:
+``port-channel`` ID holds the following keys:
 
 |        Key | Type                      | Notes                                                                                                                                                                                     |
 |------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -111,7 +111,7 @@ Sample ``defaults/main.yaml``:
 
 A simple playbook to setup system, ``leaf.yml``:
 
-    - hosts: leafs
+    - hosts: leaf1
       roles:
          - Dell-Networking.dellos-lag
 
@@ -126,7 +126,7 @@ Send general comments and feedback to: feedback-ansible-dell-networking@dell.com
 License
 --------
 
-Copyright (c) 2016, Dell Inc. All rights reserved.
+Copyright (c) 2017, Dell Inc. All rights reserved.
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

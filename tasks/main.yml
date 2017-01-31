@@ -1,9 +1,10 @@
 ---
-# tasks file for dellos-lag
+# tasks file for Dell-Networking.dellos-lag
 - name: "Provision LAG configuration for OS9"
   dellos9_config:
     src: dellos9_lag.j2
     provider: "{{ cli }}"
+#  notify: save config os9
   when: ansible_net_os_name == "dellos9"
   register: output
 
@@ -11,15 +12,21 @@
   dellos10_config:
     src: dellos10_lag.j2
     provider: "{{ cli }}"
+#  notify: save config os10
   when: ansible_net_os_name == "dellos10"
   register: output
-
 
 - name: "Provision LAG configuration for OS6"
   dellos6_config:
     src: dellos6_lag.j2
     provider: "{{ cli }}"
+#  notify: save config os6
   when: ansible_net_os_name == "dellos6"
   register: output
+
+
+
+
+
 
 
