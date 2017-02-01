@@ -14,6 +14,7 @@ dellos_lag:
      state: present
      members_state: present
 ################################}
+{% if (dellos_lag is defined and dellos_lag) and (hostname in dellos_lag) %}
 {% set vars = dellos_lag[hostname] %}
 {% for key  in vars.keys() %}
 {% set channel_id = key.split(" ") %}
@@ -65,4 +66,4 @@ interface {{ port }}
  
   {% endif %}
 {% endfor %}
-
+{% endif %}
