@@ -18,6 +18,7 @@ dellos_lag:
 ################################}
 {% if (dellos_lag is defined and dellos_lag) and (hostname in dellos_lag) %}
 {% set vars = dellos_lag[hostname] %}
+{% if vars %}
 {% for key  in vars.keys() %}
 {% set channel_id = key.split(" ") %}
 {% set lag_vars = vars[key] %}
@@ -64,4 +65,5 @@ exit
     {% endif %}
   {% endif %}
 {% endfor %}
+{% endif %}
 {% endif %}
