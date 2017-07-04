@@ -1,32 +1,59 @@
 #jinja2: trim_blocks: True,lstrip_blocks: True
 {################################
+
 Purpose:
-Configure LAG on OS9 Devices.
+Configure LAG commands for dellos9 Devices.
 
 dellos_lag:
- OS9:
-   Po 127:
+  Po 1:
      type: static
      min_links: 3
-     hash: crc16
+     lacp:
+       long_timeout: true
+       fast_switchover: true
+     lacp_system_priority: 2
+     lacp_ungroup:
+       - port_channel: 1
+         state: present
+     lacp_ungroup_vlt: true
      channel_members:
-       - fortyGigE 0/4,12
-     members_state: present
+       - port: fortyGigE 0/4
+         state: present
      state: present
 
  ###############################}
-{% if (dellos_lag is defined and dellos_lag) and (hostname in dellos_lag) %}
-{% set vars = dellos_lag[hostname] %}
-{% if vars %}
-{% for key  in vars.keys() %}
+{% if dellos_lag is defined and dellos_lag %}
+{% for key in dellos_lag.keys() %}
 {% set channel_id = key.split(" ") %}
-{% set lag_vars = vars[key] %}
-
-  {% if lag_vars.hash is defined %}
-    {% if lag_vars.hash %}
-hash-algorithm lag {{ lag_vars.hash }}
+{% set lag_vars = dellos_lag[key] %}
+  
+  {% if lag_vars.lacp_system_priority is defined %}
+    {% if lag_vars.lacp_system_priority %}
+lacp system-priority {{ lag_vars.lacp_system_priority }}
     {% else %}
-no hash-algorithm lag
+no lacp system-priority
+    {% endif %}
+  {% endif %}
+ 
+  {% if lag_vars.lacp_ungroup_vlt is defined %}
+    {% if lag_vars.lacp_ungroup_vlt %}
+lacp ungroup member-independent vlt
+    {% else %}
+no lacp ungroup member-independent vlt
+    {% endif %}
+  {% endif %}
+  
+  {% if lag_vars.lacp_ungroup is defined %}
+    {% if lag_vars.lacp_ungroup %}
+      {% for port in lag_vars.lacp_ungroup %}
+        {% if port.port_channel is defined and port.port_channel %}
+          {% if port.state is defined and port.state == "absent" %}
+no lacp ungroup member-independent port-channel {{ port.port_channel }}
+          {% else %}
+lacp ungroup member-independent port-channel {{ port.port_channel }}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
     {% endif %}
   {% endif %}
 
@@ -42,23 +69,44 @@ interface Port-channel {{ channel_id[1] }}
  no minimum-links
       {% endif %}
     {% endif %}
+    
+    {% if lag_vars.lacp is defined and lag_vars.lacp %}
+      {% if lag_vars.lacp.fast_switchover is defined %}
+        {% if lag_vars.lacp.fast_switchover %}
+ lacp fast-switchover
+        {% else %}
+ no lacp fast-switchover
+        {% endif %}
+      {% endif %}
+      {% if lag_vars.lacp.long_timeout is defined %}
+        {% if lag_vars.lacp.long_timeout %}
+ lacp long-timeout
+        {% else %}
+ no lacp long-timeout
+        {% endif %}
+      {% endif %}
+    {% endif %}
 
     {% if lag_vars.channel_members is defined %}
-      {% for port in lag_vars.channel_members %}
+      {% for ports in lag_vars.channel_members %}
         {% if lag_vars.type is defined and  lag_vars.type == "static" %}
-          {% if lag_vars.members_state is defined and lag_vars.members_state == "absent" %}
- no channel-member {{ port }}
-          {% else %}
- channel-member {{ port }}
+          {% if ports.port is defined and ports.port %}
+            {% if ports.state is defined and ports.state == "absent" %}
+ no channel-member {{ ports.port }}
+            {% else %}
+ channel-member {{ ports.port }}
+            {% endif %}
           {% endif %}
         {% elif lag_vars.type is defined and lag_vars.type == "dynamic" %}
-          {% if lag_vars.members_state is defined and lag_vars.members_state == "absent" %}
-interface {{ port }}
+          {% if ports.port is defined and ports.port %}
+            {% if ports.state is defined and ports.state == "absent" %}
+interface {{ ports.port }}
  no port-channel-protocol LACP
-          {% else %}
-interface {{ port }}
+            {% else %}
+interface {{ ports.port }}
  port-channel-protocol LACP
   port-channel {{ channel_id[1] }} mode active
+            {% endif %}
           {% endif %}
         {% endif %}
       {% endfor %}
@@ -66,5 +114,4 @@ interface {{ port }}
 
   {% endif %}
 {% endfor %}
-{% endif %}
 {% endif %}
