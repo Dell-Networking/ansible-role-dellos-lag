@@ -1,99 +1,88 @@
-LAG Role for Dell EMC Networking OS
-====================================
+LAG role
+========
 
-This role facilitates the configuration of Link Aggregation Group (LAG) attributes. It supports the creation and deletion of a LAG and its member ports.
-It also supports the configuration of type (static/dynamic), hash scheme in dellos6 devices, and minimum required link. This role is abstracted for dellos9,dellos6 and dellos10 devices.
+This role facilitates the configuration of link aggregation group (LAG) attributes. It supports the creation and deletion of a LAG and its member ports. It also supports the configuration of an interface type as a static or dynamic LAG, hash scheme in dellos6 devices, and minimum required link. This role is abstracted for dellos9, dellos6, and dellos10 devices.
 
+The LAG role requires an SSH connection for connectivity to a Dell EMC Networking device. You can use any of the built-in Dell EMC Networking os connection variables, or the *provider* dictionary.
 
 Installation
 ------------
 
-```
-ansible-galaxy install Dell-Networking.dellos-lag
-```
+    ansible-galaxy install Dell-Networking.dellos-lag
 
-Requirements
-------------
-
-This role requires an SSH connection for connectivity to your Dell EMC Networking device. You can use any of the built-in Dell EMC Networking os connection variables, or the ``provider``
-dictionary.
-
-Role Variables
+Role variables
 --------------
 
-The object described as follows drives the tasks in this role.
-This role is abstracted using the variable ``ansible_net_os_name`` that can take the following values: dellos9, dellos6, dellos10.
+- Object drives the tasks in this role
+- *dellos_lag* (dictionary) contains the hostname (dictionary)
+- Hostname is the value of the *hostname* variable that corresponds to the name of the OS device
+- Role is abstracted using the *ansible_net_os_name* variable that can take dellos6, dellos9, and dellos10 values
+- Any role variable with a corresponding state variable setting to absent negates the configuration of that variable
+- Setting an empty value to any variable negates the corresponding configuration
+- *dellos_lag* (dictionary) holds a dictionary with the port-channel ID key in `Po <ID>` format (1 to 4096 for dellos9; 1 to 128 for dellos10 and dellos6)
+- Variables and values are case-sensitive
 
-Any role variable with a corresponding state variable setting to absent negates the configuration of that variable. 
-For variables with no state variable, setting an empty value to the variable negates the corresponding configuration.
-The variables and its values are case-sensitive.
+**port-channel ID keys**
 
-``dellos_lag`` (dictionary) holds a dictionary with port channel ID key. The key should be in the format `Po <ID>`. The ID can be in the range 1-4096 for dellos9 devices, 1-128 for dellos10 and dellos6 devices.
+| Key        | Type                      | Description                                             | Support               |
+|------------|---------------------------|---------------------------------------------------------|-----------------------|
+| ``type``      | string: static,dynamic      | Configures the interface either as a static or dynamic LAG           | dellos6, dellos9, dellos10 |
+| ``min_links`` | integer                       | Configures the minimum number of links in the LAG that must be in *operup* status (1 to 64 for dellos9; 1 to 32 dellos10; 1 to 8  dellos6) | dellos6, dellos9, dellos10 |
+| ``hash`` | integer | Configures the hash value for dellos6 devices (0 to 7) | dellos6 |
+| ``max_bundle_size`` | integer | Configures max bundle size for the port channel . | dellos10 |
+| ``lacp``     | dictionary | Specifies LACP fast-switchover or long timeout options | dellos9 |
+| ``lacp.fast_switchover`` | boolean | Configures the fast-switchover option if set to true | dellos9 |
+| ``lacp.long_timeout`` | boolean | Configures the long-timeout option if set to true | dellos9 |
+| ``lacp_system_priority`` | integer | Configures the LACP system-priority value (1 to 65535 for dellos9) | dellos9, dellos10 |
+| ``lacp_ungroup_vlt`` | boolean | Configures all VLT LACP members to be switchports if set to true | dellos9 |
+| ``lacp_ungroup`` | list | Specifies the list of port-channels to become switchports (see ``lacp_ungroup.*``) | dellos9 |
+| ``lacp_ungroup.port_channel`` | integer (required) | Specifies valid port-channel numbers |  dellos9 |
+| ``lacp_ungroup.state`` | string: present,absent\* | Deletes the ungroup association if set to absent | dellos9 |
+| ``channel_members``  | list  | Specifies the list of port members to be associated to the port-channel (see ``channel_members.*``) | dellos6, dellos9, dellos10 |
+| ``channel_members.port`` | string  | Specifies valid os9/os6/os10 interface names to be configured as port-channel members | dellos6, dellos9, dellos10 |
+| ``channel_members.state`` | string: absent,present | Deletes the port member association if set to absent | dellos6, dellos9 |
+| ``channel_members.mode`` | string: active,passive,on | Configures mode of channel members on OS10 devices | dellos10 |
+| ``channel_members.port_priority`` | integer | Configures port priority on OS10 devices for channel members | dellos10 |
+| ``channel_members.lacp_rate_fast`` | boolean | Configures the LACP rate as fast if set to true | dellos10 |
+| ``state``  | string: absent,present\*           | Deletes the LAG corresponding to the port-channel ID if set to absent | dellos6, dellos9, dellos10 |
 
-``port-channel ID`` holds the following keys:
+> **NOTE**: Asterisk (\*) denotes the default value if none is specified.
 
-|        Key | Type                      | Notes                                                                                                                                                                                     |
-|------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type      | choices : static, dynamic      |Configures the interface either as a static or dynamic LAG.            |  
-| min_links | integer                       |Configures the minimum number of links in the LAG that must be in 'operup' status. You can configure minimum links in the range 1-64 on dellos9 devices and 1-32 on dellos10 devices and 1-8 on dellos6 devices.|
-| hash | integer |Configures hash value for dellos6 devices in the range 0-7.This key is not supported on dellos9 and dellos10 devices.|
-| lacp     | dict |Specifies lacp fast-switchover or long timeout options .This key is not supported on dellos6 and dellos10 devices.|
-| lacp.fast_switchover | boolean |Configures fast-switchover option if this key is set to true.|
-| lacp.long_timeout | boolean |Configure long-timeout option if this key is set to true.|
-| lacp_system_priority | integer |Configure lacp-system priority value that can be specified in the range 1-65535 on dellos9 devices. |
-| lacp_ungroup_vlt |boolean | Configures all VLT LACP members to be switchports if this key is set to true. |
-| lacp_ungroup | list |Specifies the list of port-channels to become switchports .See the lacp_ungroup.* keys for each list item.|
-| lacp_ungroup.port_channel | integer(required) |Specifies valid port-channel number. |
-| lacp_ungroup.state |choices: present,absent* |Removes the ungroup association if this key is set to absent. |
-| channel_members  | list  |Specifies the list of port members to be associated to the port channel. See the channel_members.* keys for each list item .|
-| channel_members.port | string  |Specifies valid os9/os6/os10 interface name to be configured as the port channel member. |
-| channel_members.state | string, choices: absent, present |Removes the port member association when set to absent .|
-| state  | string, choices: absent, present*           |Deletes the LAG corresponding to the port channel ID when set to absent. |
-
-
-```
-Note: Asterisk (*) denotes the default value if none is specified.
-```
-
-Connection Variables
+Connection variables
 --------------------
 
-Ansible Dell EMC Networking roles require the following connection information to establish 
-communication with the nodes in your inventory. This information can exist in
-the Ansible group_vars or host_vars directories, or in the playbook itself.
+Ansible Dell EMC Networking roles require connection information to establish communication with the nodes in your inventory. This information can exist in the Ansible *group_vars* or *host_vars* directories, or in the playbook itself.
 
-|         Key | Required | Choices    | Description                              |
-| ----------: | -------- | ---------- | ---------------------------------------- |
-|        host | yes      |            | Hostname or address for connecting to the remote device over the specified ``transport``. The value of this key is the destination address for the transport. |
-|        port | no       |            | Port to use when building the connection to the remote device. This value applies to either acceptable value of ``transport``. The value of this defaults to the appropriate transport common port if this key provides none (CLI=22, HTTP=80, HTTPS=443). |
-|    username | no       |            | Configures the username that authenticates the connection to the remote device. The value of this key authenticates the CLI login. If this key does not specify the value, the value of environment variable ANSIBLE_NET_USERNAME is used instead. |
-|    password | no       |            | Specifies the password that authenticates the connection to the remote device. This is a common argument used for either acceptable value of ``transport``. If the task does not specify the value, the value of environment variable ANSIBLE_NET_PASSWORD is used instead. |
-|   authorize | no       | yes, no*   | Instructs the module to enter privileged mode on the remote device before sending any commands. If the task does not specify the value, the value of environment variable ANSIBLE_NET_AUTH_PASS is used instead.If not specified, the device attempts to execute all commands in non-privileged mode. |
-|   auth_pass | no       |            | Specifies the password to use if required to enter privileged mode on the remote device. If ``authorize`` is set to no, then this key is not applicable. If the task does nf the task does not specify the value, the value of environment variable ANSIBLE_NET_AUTH_PASS is used instead. |
-|   transport | yes      | cli*       | Configures the transport connection to use when connecting to the remote device. This key supports connectivity to the device over CLI (SSH).  |
-|    provider | no       |            | Convenient method that passes all of the above connection arguments as a dictionary object. All constraints (such as required or choices) must be met either by individual arguments or values in this dictionary. |
+| Key         | Required | Choices    | Description                                         |
+|-------------|----------|------------|-----------------------------------------------------|
+| ``host`` | yes      |            | Specifies the hostname or address for connecting to the remote device over the specified transport |
+| ``port``        | no       |            | Specifies the port used to build the connection to the remote device; if unspecified, the value defaults to 22 |
+| ``username`` | no       |            | Specifies the username that authenticates the CLI login to connect to the remote device; if value is unspecified the ANSIBLE_NET_USERNAME environmental variable value is used |
+| ``password``    | no       |            | Specifies the password that authenticates the connection to the remote device; if value is unspecified, the ANSIBLE_NET_PASSWORD environment variable value is used |
+| ``authorize`` | no       | yes, no\*   | Instructs the module to enter privileged mode on the remote device before sending any commands; if value is unspecified, the ANSIBLE_NET_AUTH_PASS environmental variable value is used and the device attempts to execute all commands in non-privileged mode |
+| ``auth_pass`` | no       |            | Specifies the password to use if required to enter privileged mode on the remote device; if *authorize* is set to no, this key is not applicable; if value is unspecified, the ANSIBLE_NET_AUTH_PASS environment variable value is used  |
+| ``provider`` | no       |            | Passes all connection arguments as a dictionary object; all constraints (such as required or choices) must be met either by individual arguments or values in this dictionary |
 
-```
-Note: Asterisk (*) denotes the default value if none is specified.
-```
+> **NOTE**: Asterisk (\*) denotes the default value if none is specified.
+
 Dependencies
 ------------
 
-The Dell-Networking.dell-lag role is built on modules included in the core Ansible code.
-These modules were added in Ansible version 2.2.0.
+The *dellos-lag* role is built on modules included in the core Ansible code. These modules were added in Ansible version 2.2.0.
 
-
-Example Playbook
+Example playbook
 ----------------
 
-The following example use the Dell-Networking.dellos-lag role to setup port channel ID and description. This example also configures hash algorithm and minimum links for the LAG. Channel members can be configured for the port channel either in static or dynamic mode. You can also delete the LAG with the port channel ID or delete the members associated to it. This example creates a ``hosts`` file with our switch, a corresponding ``host_vars`` file, and then a simple playbook that references the dellos-lag role.
+This example uses the *dellos-lag* role to setup port channel ID and description. The example also configures hash algorithm and minimum links for the LAG. Channel members can be configured for the port channel either in static or dynamic mode. You can also delete the LAG with the port channel ID or delete the members associated to it. This example creates a *hosts* file with the switch details and corresponding variables. The hosts file should define the *ansible_net_os_name* variable with corresponding Dell EMC networking OS name.
 
-Sample hosts file:
+When *dellos_cfg_generate* is set to true, the variable generates the configuration commands as a .part file in *build_dir* path. By default, the variable is set to false. It writes a simple playbook that only references the *dellos-lag* role.
+
+**Sample hosts file**
 
     leaf1 ansible_host= <ip_address> ansible_net_os_name= <OS name(dellos9/dellos6/dellos10)>
 
-Sample ``host_vars/leaf1``:
-    
+**Sample host_vars/leaf1**
+
     hostname: leaf1
     provider:
       host: "{{ hostname }}"
@@ -101,7 +90,7 @@ Sample ``host_vars/leaf1``:
       password: xxxxx
       authorize: yes
       auth_pass: xxxxx 
-      transport: cli
+    build_dir: ../temp/dellos9
 
     dellos_lag:
         Po 127:
@@ -122,29 +111,14 @@ Sample ``host_vars/leaf1``:
               state: present
           state: present
 
-A simple playbook to setup system, ``leaf.yaml``:
+**Simple playbook to setup system - leaf.yaml**
 
     - hosts: leaf1
       roles:
          - Dell-Networking.dellos-lag
 
-Then run with:
+**Run**
 
     ansible-playbook -i hosts leaf.yaml
 
-License
---------
-
-Copyright (c) 2016, Dell Inc. All rights reserved.
- 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
- 
-    http://www.apache.org/licenses/LICENSE-2.0
- 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+(c) 2017 Dell EMC
