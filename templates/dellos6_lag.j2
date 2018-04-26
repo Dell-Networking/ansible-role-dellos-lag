@@ -36,7 +36,6 @@ hashing-mode {{ lag_vars.hash }}
 no hashing-mode
       {% endif %}
     {% endif %}
-exit
     {% if lag_vars.min_links is defined %}
       {% if lag_vars.min_links %}
 port-channel min-links {{ lag_vars.min_links }}
