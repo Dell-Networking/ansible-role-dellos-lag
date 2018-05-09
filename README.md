@@ -16,7 +16,7 @@ Role variables
 - Object drives the tasks in this role
 - *dellos_lag* (dictionary) contains the hostname (dictionary)
 - Hostname is the value of the *hostname* variable that corresponds to the name of the OS device
-- Role is abstracted using the *ansible_network_os*/*ansible_net_os_name* variable that can take dellos6, dellos9, and dellos10 values
+- Role is abstracted using the *ansible_network_os* variable that can take dellos6, dellos9, and dellos10 values
 - Any role variable with a corresponding state variable setting to absent negates the configuration of that variable
 - Setting an empty value to any variable negates the corresponding configuration
 - *dellos_lag* (dictionary) holds a dictionary with the port-channel ID key in `Po <ID>` format (1 to 4096 for dellos9; 1 to 128 for dellos10 and dellos6)
@@ -55,12 +55,9 @@ Ansible Dell EMC Networking roles require connection information to establish co
 
 | Key         | Required | Choices    | Description                                         |
 |-------------|----------|------------|-----------------------------------------------------|
-| ``ansible_host`` | yes      |            | Specifies the hostname or address for connecting to the remote device over the
-specified transport |
-| ``ansible_port`` | no       |            | Specifies the port used to build the connection to the remote device; if value
-is unspecified, the ANSIBLE_REMOTE_PORT option is used; it defaults to 22 |
-| ``ansible_ssh_user`` | no       |            | Specifies the username that authenticates the CLI login for the connection
-to the remote device; if value is unspecified, the ANSIBLE_REMOTE_USER environment variable value is used  |
+| ``ansible_host`` | yes      |            | Specifies the hostname or address for connecting to the remote device over the specified transport |
+| ``ansible_port`` | no       |            | Specifies the port used to build the connection to the remote device; if value is unspecified, the ANSIBLE_REMOTE_PORT option is used; it defaults to 22 |
+| ``ansible_ssh_user`` | no       |            | Specifies the username that authenticates the CLI login for the connection to the remote device; if value is unspecified, the ANSIBLE_REMOTE_USER environment variable value is used  |
 | ``ansible_ssh_pass`` | no       |            | Specifies the password that authenticates the connection to the remote device  |
 | ``ansible_become`` | no       | yes, no\*   | Instructs the module to enter privileged mode on the remote device before sending any commands; if value is unspecified, the ANSIBLE_BECOME environment variable value is used, and the device attempts to execute all commands in non-privileged mode |
 | ``ansible_become_method`` | no       | enable, sudo\*   | Instructs the module to allow the become method to be specified for handling privilege escalation; if value is unspecified, the ANSIBLE_BECOME_METHOD environment variable value is used |
@@ -77,13 +74,13 @@ The *dellos-lag* role is built on modules included in the core Ansible code. The
 Example playbook
 ----------------
 
-This example uses the *dellos-lag* role to setup port channel ID and description, and configures hash algorithm and minimum links for the LAG. Channel members can be configured for the port-channel either in static or dynamic mode. You can also delete the LAG with the port-channel ID or delete the members associated to it. This example creates a *hosts* file with the switch details and corresponding variables. The hosts file should define the *ansible_network_os*/ *ansible_net_os_name* variable with corresponding Dell EMC networking OS name.
+This example uses the *dellos-lag* role to setup port channel ID and description, and configures hash algorithm and minimum links for the LAG. Channel members can be configured for the port-channel either in static or dynamic mode. You can also delete the LAG with the port-channel ID or delete the members associated to it. This example creates a *hosts* file with the switch details and corresponding variables. The hosts file should define the *ansible_network_os* variable with corresponding Dell EMC networking OS name.
 
 When *dellos_cfg_generate* is set to true, the variable generates the configuration commands as a .part file in *build_dir* path. By default, the variable is set to false. It writes a simple playbook that only references the *dellos-lag* role.
 
 **Sample hosts file**
 
-    leaf1 ansible_host= <ip_address> ansible_net_os_name= <OS name(dellos9/dellos6/dellos10)>
+    leaf1 ansible_host= <ip_address> 
 
 **Sample host_vars/leaf1**
 
