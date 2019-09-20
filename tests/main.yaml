@@ -1,6 +1,5 @@
 ---
 # vars file for Dell-Networking.dellos-lag
-
 # Sample variables for dellos9 device
 dellos_lag:
     Po 127:
@@ -35,7 +34,6 @@ dellos_lag:
       state: present
 
 # Sample variables for dellos10 device
-
 dellos_lag:
   Po 12:
      type: dynamic
