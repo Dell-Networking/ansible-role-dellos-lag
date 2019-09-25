@@ -1,9 +1,7 @@
 #jinja2: trim_blocks: True,lstrip_blocks: True
 {################################
-
 Purpose:
 Configure LAG commands for dellos6 Devices.
-
 dellos_lag:
    Po 1:
      type: static
@@ -15,7 +13,6 @@ dellos_lag:
        - port: Te1/0/1
          state: absent
      state: present
-
 ################################}
 {% if dellos_lag is defined and dellos_lag %}
 {% for key  in dellos_lag.keys() %}
