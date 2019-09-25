@@ -34,6 +34,7 @@ Role variables
 | ``lacp.fast_switchover`` | boolean | Configures the fast-switchover option if set to true | dellos9 |
 | ``lacp.long_timeout`` | boolean | Configures the long-timeout option if set to true | dellos9 |
 | ``lacp_system_priority`` | integer | Configures the LACP system-priority value (1 to 65535 for dellos9) | dellos9, dellos10 |
+| ``lacp_fallback_enable`` | boolean | Configures LACP fallback | dellos10 |
 | ``lacp_ungroup_vlt`` | boolean | Configures all VLT LACP members to be switchports if set to true | dellos9 |
 | ``lacp_ungroup`` | list | Specifies the list of port-channels to become switchports (see ``lacp_ungroup.*``) | dellos9 |
 | ``lacp_ungroup.port_channel`` | integer (required) | Specifies valid port-channel numbers |  dellos9 |
