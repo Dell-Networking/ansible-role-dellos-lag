@@ -4,6 +4,7 @@
 dellos_lag:
   Po 12:
      type: dynamic
+     desc: "Port Channel 12"
      min_links: 2
      max_bundle_size: 2
      lacp_system_priority: 2

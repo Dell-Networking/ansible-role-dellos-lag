@@ -26,6 +26,7 @@ Role variables
 
 | Key        | Type                      | Description                                             | Support               |
 |------------|---------------------------|---------------------------------------------------------|-----------------------|
+| ``desc``  | string         | Configures a single line interface description  | dellos6, dellos9, dellos10 |
 | ``type``      | string: static,dynamic      | Configures the interface either as a static or dynamic LAG           | dellos6, dellos9, dellos10 |
 | ``min_links`` | integer                       | Configures the minimum number of links in the LAG that must be in *operup* status (1 to 64 for dellos9; 1 to 32 dellos10; 1 to 8  dellos6) | dellos6, dellos9, dellos10 |
 | ``hash`` | integer | Configures the hash value for dellos6 devices (1 to 7) | dellos6 |
