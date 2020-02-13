@@ -4,6 +4,7 @@
 dellos_lag:
     Po 127:
       type: dynamic
+      desc: "Port Channel 127"
       lacp:
         long_timeout: true
         fast_switchover: true

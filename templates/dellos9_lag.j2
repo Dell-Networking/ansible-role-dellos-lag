@@ -58,6 +58,13 @@ lacp ungroup member-independent port-channel {{ port.port_channel }}
 no interface Port-channel {{ channel_id[1] }}
   {% else %}
 interface Port-channel {{ channel_id[1] }}
+    {% if lag_vars.desc is defined %}
+      {% if lag_vars.desc %}
+ description {{ lag_vars.desc }}
+      {% else %}
+ no description
+      {% endif %}
+    {% endif %}
 
     {% if lag_vars.min_links is defined %}
       {% if lag_vars.min_links %}
